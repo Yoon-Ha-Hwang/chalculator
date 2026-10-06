@@ -16,7 +16,7 @@ public class Chalculator {
 	
 	//Change these values for a harder/easier challenge
 	//Note that there's no fear of integer overflow because there's not enough digits to multiply and get Integer.MAX_VALUE (at least, I think)
-	public static int numNumbers = 6; 
+	public static int numNumbers = 5; 
 	public static int numOperators = 2; 
 	
 	//There will be numOperators + 1 values that need to be assembled from numNumbers numbers because an operator needs to be in between two numbers
@@ -30,11 +30,11 @@ public class Chalculator {
 		System.out.println("Welcome to Chalculator!\nThis is a game where you have find the equation based on the numbers and operators used as well as the final answer.");
 		System.out.println("For example, if you see \"2\", \"3\", and \"+\" and the answer is 5, you type 2+3!");
 		System.out.println("Note that Chalculator works without brackets and works strictly left-to-right. For example, 2+3*5 will be 25, not the usual 17.");
-		System.out.println("Also, please note they you need to use all operators and numbers.");
-		System.out.println("Do not add the \"equals something \" part in your equation, i.e. enter 2+3 and not 2+3=5.");
+		System.out.println("Also, please note that you need to use all operators and numbers.");
+		System.out.println("Do not add the \"equals something \" or spaces in your equation, i.e. enter 2+3 and not 2+3=5 or 2 + 3.");
+		System.out.println("Also note that if you put two numbers in a row, they get combined, so a 1 next to a 4 becomes a 14.\nOrder doesn't matter, so it can become a 41.");
 		while(true) {
 			questionGenerator();
-			System.out.println("Loading question! (100%)");
 			System.out.println("What do you think was the original equation?"); 
 			String guess = read.next();
 			if(answerVerify(guess)) {
@@ -48,12 +48,11 @@ public class Chalculator {
 	
 	public static void questionGenerator() {
 		//Field reset
-		System.out.println("Loading question! (0%)");
 		questionNumbers.clear();
 		questionOperators.clear();
 		
 		for(int i = 0; i < numNumbers; i++) {
-			Double appendA = (Double)(Math.random() * 9 + 1); //Random integer from 1~9, not including 0s because I don't want something times 0 as the answer
+			Double appendA = (double) ((int) (Math.random() * 9 + 1)); //Random integer from 1~9, not including 0s because I don't want something times 0 as the answer
 			questionNumbers.add(appendA);
 		}
 		for(int i = 0; i < numOperators; i++) {
@@ -70,7 +69,6 @@ public class Chalculator {
 			}
 			questionOperators.add(appendB);
 		}
-		System.out.println("Loading question! (1%)");
 		//Clone A is used internally to build the question. Clone B is used to display the question to the user.
 		ArrayList<Double> questionNumbersCloneA = new ArrayList<>();
 		ArrayList<Double> questionNumbersCloneB = new ArrayList<>();
@@ -78,18 +76,15 @@ public class Chalculator {
 			questionNumbersCloneA.add(questionNumbers.get(i));
 			questionNumbersCloneB.add(questionNumbers.get(i));
 		}
-		System.out.println("Loading question! (2%)");
 		ArrayList<String> questionOperatorsCloneA = new ArrayList<>();
 		ArrayList<String> questionOperatorsCloneB = new ArrayList<>();
-		for(int i = 0; i < questionNumbers.size(); i++) {
+		for(int i = 0; i < questionOperators.size(); i++) {
 			questionOperatorsCloneA.add(questionOperators.get(i));
 			questionOperatorsCloneB.add(questionOperators.get(i));
 		}
-		System.out.println("Loading question! (3%)");
 		for(int i = 0; i <= numOperators; i++) { //Ensure there's no null in any of them by giving all of them at least one value
 			questionValues[i] = questionNumbersCloneA.remove(0);
 		}
-		System.out.println("Loading question! (4%)");
 		while(questionNumbersCloneA.size() != 0) { //Randomly assign all remaining numbers to values
 			int selectedIndex = (int)(Math.random() * (numOperators+1)); //Possible ranges: 0 to numOperators (numOperators+1 total values)
 			questionValues[selectedIndex] = questionValues[(int)(selectedIndex)] * 10 + questionNumbersCloneA.remove(0); //This will squeeze in the number at the end
@@ -100,14 +95,13 @@ public class Chalculator {
 		 * Clone B, which will be displayed to the user, will have numbers arranged in ascending order
 		 * The operators will be in random order
 		 */
-		System.out.println("Loading question! (5%)");
 		answer = questionValues[0]; //Start with the very first value as the initial value
 		equation = answer.toString(); //The correct equation. Initialise with the very first value
 		for(int i = 1; i < questionValues.length; i++) { //Alternate between operator and value
 			String operator = questionOperatorsCloneA.remove(0);
 			equation += operator; //Append operators to the solution
 			Double value = questionValues[i];
-			equation += operator.toString(); //Append values to the solution
+			equation += value.toString(); //Append values to the solution
 			if(operator.equals("+")) {
 				answer += value;
 			} else if(operator.equals("-")) {
@@ -118,7 +112,6 @@ public class Chalculator {
 				answer /= value;
 			}
 		}
-		System.out.println("Loading question! (6%)");
 		//It now has an answer and the solution equation. Now I just need to present the question to the player.
 		Double[] presentNumbers = new Double[numNumbers];
 		String[] presentOperators = new String[numOperators];
@@ -132,12 +125,11 @@ public class Chalculator {
 				}
 			}
 			int addTo = 0;
-			while(presentNumbers[addTo] != 0) { //Find a place in presentNumbers that is a zero, so we can add the minimum number there
+			while(presentNumbers[addTo] != null) { //Find a place in presentNumbers that is a zero, so we can add the minimum number there
 				addTo++;
 			} //By exiting the while loop, it means the spot is occupied by a zero
 			presentNumbers[addTo] = questionNumbersCloneB.remove(minIndex);
 		}
-		System.out.println("Loading question! (7%)");
 		while(!questionOperatorsCloneB.isEmpty()) {
 			String toAdd = questionOperatorsCloneB.remove((int)(Math.random() * questionOperatorsCloneB.size()));
 			int whereTo = 0;
@@ -146,22 +138,21 @@ public class Chalculator {
 			}
 			presentOperators[whereTo] = toAdd;
 		}
-		System.out.println("Loading question! (8%)");
 		//Values and operators successfully randomised. Now present that to the player.
 		System.out.println("\nHere is the question!");
-		System.out.println("NUMBERS: ");
+		System.out.print("NUMBERS: ");
 		for(int i = 0; i < numNumbers; i++) {
 			System.out.print(presentNumbers[i].intValue());
 			System.out.print(" "); //This is important to ensure that the numbers don't appear next to each other, they are genuinely separate values
 		}
-		System.out.println("OPERATORS: ");
+		System.out.print("\nOPERATORS: ");
 		for(int i = 0; i < numOperators; i++) {
 			System.out.print(presentOperators[i]);
 			System.out.print(" ");
 		}
 		//Round answers to 6 decimal places
 		answer = (double)((long)(answer * 100000) / 100000);
-		System.out.println("ANSWER: " + answer);
+		System.out.println("\nANSWER: " + answer);
 	}
 	
 	public static boolean answerVerify(String submission) {
@@ -249,8 +240,6 @@ public class Chalculator {
 		}
 		
 		//At this point they have the correct number of operators and numbers in the equation. Now all that's needed is check the answers of their equation.
-		double letsCheck = 0.0; //Answer of the user's equation
-		int valueUsed = 0;
 		if((submission.substring(0, 1)).equals("+") || (submission.substring(0, 1)).equals("-") || (submission.substring(0, 1)).equals("*") || (submission.substring(0, 1)).equals("/")) {
 			System.out.println("Equation may not begin with an operator.");
 			return false;
@@ -259,15 +248,53 @@ public class Chalculator {
 			System.out.println("Equation may not end with an operator.");
 			return false;
 		}
-		for(int i = 0; i < submission.length(); i++) { //Calculate answer
+		
+		//Calculate answer
+		double letsCheck = 0.0; //Answer of the user's equation
+		int valueUsed = 0;
+		int x = 0;
+		
+		//Initialise letsCheck
+		while(!((submission.substring(x, x+1).equals("+")) || (submission.substring(x, x+1).equals("-")) || (submission.substring(x, x+1).equals("*")) || (submission.substring(x, x+1).equals("/")))) {
+			if(x != 0) {
+				valueUsed *= 10;
+			}
+			if((submission.substring(x, x+1)).equals("1")) {
+				valueUsed += 1;
+			} else if((submission.substring(x, x+1)).equals("2")) {
+				valueUsed += 2;
+			} else if((submission.substring(x, x+1)).equals("3")) {
+				valueUsed += 3;
+			} else if((submission.substring(x, x+1)).equals("4")) {
+				valueUsed += 4;
+			} else if((submission.substring(x, x+1)).equals("5")) {
+				valueUsed += 5;
+			} else if((submission.substring(x, x+1)).equals("6")) {
+				valueUsed += 6;
+			} else if((submission.substring(x, x+1)).equals("7")) {
+				valueUsed += 7;
+			} else if((submission.substring(x, x+1)).equals("8")) {
+				valueUsed += 8;
+			} else if((submission.substring(x, x+1)).equals("9")) {
+				valueUsed += 9;
+			} else { 
+				//It's an operator
+			}
+			x++;
+		}
+		for(int i = x; i < submission.length(); i++) {
 			if((submission.substring(i, i+1)).equals("+")) {
 				letsCheck += valueUsed;
+				valueUsed = 0;
 			} else if((submission.substring(i, i+1)).equals("-")) {
 				letsCheck -= valueUsed;
+				valueUsed = 0;
 			} else if((submission.substring(i, i+1)).equals("*")) {
 				letsCheck *= valueUsed;
+				valueUsed = 0;
 			} else if((submission.substring(i, i+1)).equals("/")) { //There's no threat of division by zero since zero is not a valid number and would have been caught in an earlier filter
 				letsCheck /= valueUsed;
+				valueUsed = 0;
 			} else { //A number was detected
 				valueUsed *= 10; //Move up a digit
 				if((submission.substring(i, i+1)).equals("1")) {
