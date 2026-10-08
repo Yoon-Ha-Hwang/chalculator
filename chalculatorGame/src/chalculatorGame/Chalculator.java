@@ -16,7 +16,7 @@ public class Chalculator {
 	
 	//Change these values for a harder/easier challenge
 	//Note that there's no fear of integer overflow because there's not enough digits to multiply and get Integer.MAX_VALUE (at least, I think)
-	public static int numNumbers = 5; 
+	public static int numNumbers = 6; 
 	public static int numOperators = 2; 
 	
 	//There will be numOperators + 1 values that need to be assembled from numNumbers numbers because an operator needs to be in between two numbers
@@ -32,7 +32,7 @@ public class Chalculator {
 		System.out.println("Note that Chalculator works without brackets and works strictly left-to-right. For example, 2+3*5 will be 25, not the usual 17.");
 		System.out.println("Also, please note that you need to use all operators and numbers.");
 		System.out.println("Do not add the \"equals something \" or spaces in your equation, i.e. enter 2+3 and not 2+3=5 or 2 + 3.");
-		System.out.println("Also note that if you put two numbers in a row, they get combined, so a 1 next to a 4 becomes a 14.\nOrder doesn't matter, so it can become a 41.");
+		System.out.println("Also note that if you put two numbers in a row, they get combined, so a 1 next to a 4 becomes a 14.\nOrder doesn't matter, so you can use them to make a 41.");
 		while(true) {
 			questionGenerator();
 			System.out.println("What do you think was the original equation?"); 
@@ -151,7 +151,7 @@ public class Chalculator {
 			System.out.print(" ");
 		}
 		//Round answers to 6 decimal places
-		answer = (double)((long)(answer * 100000) / 100000);
+		answer = (double)((long)(answer * 1000000) / 1000000.0);
 		System.out.println("\nANSWER: " + answer);
 	}
 	
@@ -248,80 +248,43 @@ public class Chalculator {
 			System.out.println("Equation may not end with an operator.");
 			return false;
 		}
-		
-		//Calculate answer
-		double letsCheck = 0.0; //Answer of the user's equation
-		int valueUsed = 0;
+				
+		/* The following code segment was improved by AI */
+		double letsCheck = 0.0;
 		int x = 0;
-		
-		//Initialise letsCheck
-		while(!((submission.substring(x, x+1).equals("+")) || (submission.substring(x, x+1).equals("-")) || (submission.substring(x, x+1).equals("*")) || (submission.substring(x, x+1).equals("/")))) {
-			if(x != 0) {
-				valueUsed *= 10;
-			}
-			if((submission.substring(x, x+1)).equals("1")) {
-				valueUsed += 1;
-			} else if((submission.substring(x, x+1)).equals("2")) {
-				valueUsed += 2;
-			} else if((submission.substring(x, x+1)).equals("3")) {
-				valueUsed += 3;
-			} else if((submission.substring(x, x+1)).equals("4")) {
-				valueUsed += 4;
-			} else if((submission.substring(x, x+1)).equals("5")) {
-				valueUsed += 5;
-			} else if((submission.substring(x, x+1)).equals("6")) {
-				valueUsed += 6;
-			} else if((submission.substring(x, x+1)).equals("7")) {
-				valueUsed += 7;
-			} else if((submission.substring(x, x+1)).equals("8")) {
-				valueUsed += 8;
-			} else if((submission.substring(x, x+1)).equals("9")) {
-				valueUsed += 9;
-			} else { 
-				//It's an operator
-			}
+		while (x < submission.length() && Character.isDigit(submission.charAt(x))) {
+			letsCheck = letsCheck * 10 + Character.getNumericValue(submission.charAt(x));
 			x++;
 		}
-		for(int i = x; i < submission.length(); i++) {
-			if((submission.substring(i, i+1)).equals("+")) {
-				letsCheck += valueUsed;
-				valueUsed = 0;
-			} else if((submission.substring(i, i+1)).equals("-")) {
-				letsCheck -= valueUsed;
-				valueUsed = 0;
-			} else if((submission.substring(i, i+1)).equals("*")) {
-				letsCheck *= valueUsed;
-				valueUsed = 0;
-			} else if((submission.substring(i, i+1)).equals("/")) { //There's no threat of division by zero since zero is not a valid number and would have been caught in an earlier filter
-				letsCheck /= valueUsed;
-				valueUsed = 0;
-			} else { //A number was detected
-				valueUsed *= 10; //Move up a digit
-				if((submission.substring(i, i+1)).equals("1")) {
-					valueUsed += 1;
-				} else if((submission.substring(i, i+1)).equals("2")) {
-					valueUsed += 2;
-				} else if((submission.substring(i, i+1)).equals("3")) {
-					valueUsed += 3;
-				} else if((submission.substring(i, i+1)).equals("4")) {
-					valueUsed += 4;
-				} else if((submission.substring(i, i+1)).equals("5")) {
-					valueUsed += 5;
-				} else if((submission.substring(i, i+1)).equals("6")) {
-					valueUsed += 6;
-				} else if((submission.substring(i, i+1)).equals("7")) {
-					valueUsed += 7;
-				} else if((submission.substring(i, i+1)).equals("8")) {
-					valueUsed += 8;
-				} else if((submission.substring(i, i+1)).equals("9")) {
-					valueUsed += 9;
-				}
+
+		// Process the rest of the equation strictly left-to-right
+		while (x < submission.length()) {
+			char operator = submission.charAt(x);
+			x++; // Move past the operator
+
+			// Parse the number directly following the operator
+			double nextValue = 0;
+			while (x < submission.length() && Character.isDigit(submission.charAt(x))) {
+				nextValue = nextValue * 10 + Character.getNumericValue(submission.charAt(x));
+				x++;
+			}
+
+			// Apply the operator to the running total
+			if (operator == '+') {
+				letsCheck += nextValue;
+			} else if (operator == '-') {
+				letsCheck -= nextValue;
+			} else if (operator == '*') {
+				letsCheck *= nextValue;
+			} else if (operator == '/') {
+				letsCheck /= nextValue;
 			}
 		}
+		/* End of AI improved code segment */
 		
 		//Now for the ultimate check: DO THEY EQUAL??? (within an error bound)
 		double errorBound = 0.001;
-		letsCheck = (double)((long)(letsCheck * 100000) / 100000);
+		letsCheck = (double)((long)(letsCheck * 1000000) / 1000000.0);
 		if(answer < (letsCheck - errorBound)) {
 			System.out.println("Your answer is too big. It evaluates to " + letsCheck + ".");
 			return false;
