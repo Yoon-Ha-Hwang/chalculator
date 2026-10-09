@@ -20,7 +20,7 @@ public class Chalculator {
 	public static int numOperators = 2; 
 	
 	//There will be numOperators + 1 values that need to be assembled from numNumbers numbers because an operator needs to be in between two numbers
-	public static Double[] questionValues = new Double[numOperators + 1]; //The array containing the values used in the equation (used internally)
+	public static ArrayList<Double> questionValues = new ArrayList<>(); //The array containing the values used in the equation (used internally)
 	
 	static Scanner read = new Scanner(System.in);
 	
@@ -33,6 +33,28 @@ public class Chalculator {
 		System.out.println("Also, please note that you need to use all operators and numbers.");
 		System.out.println("Do not add the \"equals something \" or spaces in your equation, i.e. enter 2+3 and not 2+3=5 or 2 + 3.");
 		System.out.println("Also note that if you put two numbers in a row, they get combined, so a 1 next to a 4 becomes a 14.\nOrder doesn't matter, so you can use them to make a 41.");
+		
+		System.out.println("\nFirst, choose a difficulty level by typing \"E\", \"M\", or \"H\": \nEasy: 6 numbers, 2 operators\nMedium: 8 numbers, 3 operators\nHard: 10 numbers, 4 operators");
+		String response = "X";
+		while(!((response.equals("E")) || (response.equals("M")) || (response.equals("H")) || (response.equals("Easy")) || (response.equals("Medium")) || (response.equals("Hard")))) {
+			response = read.next();
+			if(response.equals("E") || response.equals("Easy")) {
+				//Default settings, no need to change 
+				response = "Easy";
+			} else if(response.equals("M") || response.equals("Medium")) {
+				numNumbers = 8;
+				numOperators = 3;
+				response = "Medium";
+			} else if(response.equals("H") || response.equals("Hard")) {
+				numNumbers = 10;
+				numOperators = 4;
+				response = "Hard";
+			} else { //invalid input
+				System.out.println("Please choose from \"E\", \"M\", or \"H\" only");
+			}
+		}
+		System.out.println("Difficulty successfully set to " + response + "! If you ever want to change the difficulty, try loading the game again.");
+		
 		while(true) {
 			questionGenerator();
 			System.out.println("What do you think was the original equation?"); 
@@ -50,6 +72,7 @@ public class Chalculator {
 		//Field reset
 		questionNumbers.clear();
 		questionOperators.clear();
+		questionValues.clear();
 		
 		for(int i = 0; i < numNumbers; i++) {
 			Double appendA = (double) ((int) (Math.random() * 9 + 1)); //Random integer from 1~9, not including 0s because I don't want something times 0 as the answer
@@ -83,11 +106,11 @@ public class Chalculator {
 			questionOperatorsCloneB.add(questionOperators.get(i));
 		}
 		for(int i = 0; i <= numOperators; i++) { //Ensure there's no null in any of them by giving all of them at least one value
-			questionValues[i] = questionNumbersCloneA.remove(0);
+			questionValues.add(i, questionNumbersCloneA.remove(0));
 		}
 		while(questionNumbersCloneA.size() != 0) { //Randomly assign all remaining numbers to values
 			int selectedIndex = (int)(Math.random() * (numOperators+1)); //Possible ranges: 0 to numOperators (numOperators+1 total values)
-			questionValues[selectedIndex] = questionValues[(int)(selectedIndex)] * 10 + questionNumbersCloneA.remove(0); //This will squeeze in the number at the end
+			questionValues.set(selectedIndex, questionValues.get((int)(selectedIndex)) * 10 + questionNumbersCloneA.remove(0)); //This will squeeze in the number at the end
 		}
 		/* 
 		 * At this point it should have assembled the necessary values using cloneA's numbers
@@ -95,12 +118,12 @@ public class Chalculator {
 		 * Clone B, which will be displayed to the user, will have numbers arranged in ascending order
 		 * The operators will be in random order
 		 */
-		answer = questionValues[0]; //Start with the very first value as the initial value
-		equation = answer.toString(); //The correct equation. Initialise with the very first value
-		for(int i = 1; i < questionValues.length; i++) { //Alternate between operator and value
-			String operator = questionOperatorsCloneA.remove(0);
+		answer = questionValues.get(0); //Start with the very first value as the initial value
+		equation = answer.toString().substring(0, 1); //The correct equation. Initialise with the very first value
+		for(int i = 1; i < questionValues.size(); i++) { //Alternate between operator and value
+			String operator = questionOperators.get(i - 1);
 			equation += operator; //Append operators to the solution
-			Double value = questionValues[i];
+			Integer value = (int)((questionValues.get(i))/1);
 			equation += value.toString(); //Append values to the solution
 			if(operator.equals("+")) {
 				answer += value;
@@ -199,6 +222,7 @@ public class Chalculator {
 			return false;
 		} else if(usedNumbersList.size() < questionNumbers.size()) {
 			System.out.println("Your equation contains too few numbers (remember, you need to use every number!).");
+			return false;
 		} else { //They passed the number count check, now checking number of operators
 			if(usedOperatorsList.size() > questionOperators.size()) {
 				System.out.println("Your equation contains too many operators.");
