@@ -119,7 +119,7 @@ public class Chalculator {
 		 * The operators will be in random order
 		 */
 		answer = questionValues.get(0); //Start with the very first value as the initial value
-		equation = answer.toString().substring(0, 1); //The correct equation. Initialise with the very first value
+		equation = answer.toString().substring(0, answer.toString().length() - 2); //The correct equation. Initialise with the very first value
 		for(int i = 1; i < questionValues.size(); i++) { //Alternate between operator and value
 			String operator = questionOperators.get(i - 1);
 			equation += operator; //Append operators to the solution
