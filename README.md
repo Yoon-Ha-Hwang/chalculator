@@ -21,6 +21,3 @@ Go to Releases (on the right hand side) and download the .jar file to play. If y
 
 # Acknowledgements
 AI was used for debugging purposes. The answer validation logic was enhanced using AI, and the code segments are marked in the codebase.
-
-# Bug Reports
-If you discover that the code has an error, please report by sending an email to yoonha.hwang@ruralcoderssociety.org with the title "Chalculator". Those who report an actual error will be rewarded with a mention in the newly released version that solves the bug.
